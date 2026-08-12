@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinmay Ranganath — Deep Space Voyager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050810;
+  --void-2:#0A0F1C;
+  --hairline:rgba(232,236,250,0.12);
+  --hairline-soft:rgba(232,236,250,0.06);
+  --star:#E8ECFA;
+  --dim:#8B93B0;
+  --cyan:#8FD6FF;
+  --gold:#F2C879;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--star);
+  font-family:'Inter',sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+}
+::selection{background:var(--cyan);color:var(--void);}
+a{color:inherit;}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;font-weight:600;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--cyan);
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:20px;height:1px;background:var(--cyan);}
+
+#starfield{position:fixed;inset:0;z-index:-2;background:var(--void);}
+.nebula{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 8%, rgba(143,214,255,0.07), transparent 60%),
+    radial-gradient(ellipse 600px 500px at 88% 30%, rgba(242,200,121,0.05), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 50% 90%, rgba(143,214,255,0.04), transparent 60%);
+}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 6vw;
+  background:rgba(5,8,16,0.75);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--hairline-soft);
+}
+.status{display:flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;color:var(--dim);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px 2px rgba(143,214,255,0.7);animation:pulse 2.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+.topbar nav{display:flex;gap:30px;}
+.topbar nav a,.topbar nav button{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+  text-decoration:none;color:var(--dim);border-bottom:1px solid transparent;padding-bottom:3px;
+  transition:color .2s, border-color .2s;
+  background:none;border-left:none;border-right:none;border-top:none;padding-left:0;padding-right:0;
+  font-weight:inherit;cursor:pointer;
+}
+.topbar nav a:hover,.topbar nav a:focus-visible,
+.topbar nav button:hover,.topbar nav button:focus-visible{color:var(--cyan);border-color:var(--cyan);}
+
+section{padding:110px 6vw;max-width:1080px;margin:0 auto;position:relative;}
+section.wide{max-width:1240px;}
+.section-head{margin-bottom:52px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;}
+.section-head h2{font-size:clamp(26px,3.2vw,38px);margin-top:12px;color:var(--star);}
+.section-sub{color:var(--dim);font-size:14px;max-width:360px;margin-bottom:2px;}
+
+/* HERO */
+.hero{min-height:86vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;padding-bottom:40px;}
+.hero h1{font-size:clamp(42px,7vw,84px);letter-spacing:-0.01em;line-height:1.02;margin:20px 0 14px;}
+.hero .subtitle{font-family:'IBM Plex Mono',monospace;font-size:clamp(13px,1.6vw,16px);color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:26px;}
+.hero p.tagline{font-size:clamp(16px,1.6vw,19px);color:var(--dim);max-width:600px;margin-bottom:20px;}
+.coords{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--dim);letter-spacing:0.03em;margin-bottom:38px;}
+.coords span{color:var(--cyan);}
+.cta-row{display:flex;gap:16px;flex-wrap:wrap;}
+.btn{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;
+  padding:15px 24px;border-radius:2px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+  border:none;cursor:pointer;font-weight:inherit;
+}
+.btn-solid{background:var(--gold);color:var(--void);}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(242,200,121,0.25);}
+.btn-ghost{color:var(--star);border:1px solid var(--dim);background:rgba(139,147,176,0.1);}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-2px);}
+.btn-sm{font-size:11px;padding:10px 16px;}
+
+/* ticker */
+.ticker-wrap{
+  border-top:1px solid var(--hairline-soft);border-bottom:1px solid var(--hairline-soft);
+  overflow:hidden;padding:16px 0;background:rgba(143,214,255,0.02);
+}
+.ticker-track{display:flex;white-space:nowrap;width:max-content;animation:scroll-left 34s linear infinite;}
+.ticker-track span{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.1em;color:var(--dim);
+  padding:0 28px;text-transform:uppercase;display:flex;align-items:center;gap:28px;
+}
+.ticker-track span::after{content:'✦';color:var(--cyan);font-size:10px;}
+@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (prefers-reduced-motion: reduce){ .ticker-track{animation:none;} }
+
+/* generic hairline card */
+.card{
+  border:1px solid var(--hairline);
+  background:linear-gradient(180deg, rgba(232,236,250,0.025), rgba(232,236,250,0.0));
+  border-radius:3px;padding:32px;
+}
+
+/* FLEET / projects */
+.fleet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.fleet-card{padding:28px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s, transform .2s;}
+.fleet-card:hover{border-color:rgba(143,214,255,0.4);transform:translateY(-3px);}
+.fleet-icon{width:38px;height:38px;color:var(--cyan);}
+.fleet-card h3{font-size:17px;}
+.fleet-card p{color:var(--dim);font-size:13.5px;margin:0;flex:1;}
+.fleet-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.fleet-tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim);border:1px solid var(--hairline);padding:4px 9px;border-radius:20px;}
+.fleet-link{
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--gold);letter-spacing:0.05em;
+  display:inline-flex;align-items:center;gap:6px;margin-top:4px;text-decoration:none;
+}
+.fleet-link:hover{color:var(--cyan);}
+
+/* sketchful.AI live demo panel */
+.demo-panel{
+  margin-top:20px;padding:32px;
+  display:none;
+}
+.demo-panel.open{display:block;}
+.demo-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:24px;}
+#demo-word{color:var(--gold);}
+.demo-controls-top{display:flex;gap:12px;align-items:center;}
+.demo-body{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+@media (max-width:760px){ .demo-body{grid-template-columns:1fr;} }
+.canvas-wrap{display:flex;flex-direction:column;gap:14px;align-items:center;}
+#sketch-canvas{
+  width:100%;max-width:420px;aspect-ratio:1/1;
+  background:#ffffff;border-radius:3px;border:1px solid var(--hairline);
+  cursor:crosshair;touch-action:none;
+}
+.canvas-controls{display:flex;gap:10px;}
+.result-panel{
+  border:1px solid var(--hairline);border-radius:3px;padding:22px;min-height:200px;
+  display:flex;flex-direction:column;gap:14px;justify-content:flex-start;
+}
+.result-status{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);}
+.result-status.loading{color:var(--cyan);}
+.result-status.error{color:#FF8A8A;}
+.result-row{display:flex;flex-direction:column;gap:6px;}
+.result-row-head{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+.result-row-head .label{color:var(--star);text-transform:capitalize;}
+.result-row-head .pct{color:var(--gold);}
+.result-bar-track{height:6px;background:var(--hairline-soft);border-radius:3px;overflow:hidden;}
+.result-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:3px;transition:width .5s ease;}
+.demo-note{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);margin:22px 0 0;text-align:center;}
+
+/* upload dropzone (x-ray + face demos) */
+.upload-dropzone{
+  width:100%;max-width:420px;aspect-ratio:1/1;
+  border:1px dashed var(--hairline);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);
+  cursor:pointer;transition:border-color .2s,color .2s;position:relative;
+}
+.upload-dropzone:hover,.upload-dropzone.drag-over{border-color:var(--cyan);color:var(--cyan);}
+.file-input-hidden{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.preview-wrap{width:100%;max-width:420px;}
+.preview-wrap canvas{width:100%;display:block;border-radius:3px;border:1px solid var(--hairline);background:#111;}
+
+/* case study (dota) */
+.case-study-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;}
+.case-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.case-text{color:var(--dim);font-size:14px;margin:0;line-height:1.65;}
+.case-list{margin:0;padding-left:20px;color:var(--dim);}
+.case-list li{margin-bottom:9px;font-size:14px;line-height:1.6;}
+
+/* roadmap diagram (dota AI coach) */
+.roadmap-wrap{margin-bottom:22px;}
+.roadmap-collapse{display:none;}
+.roadmap-collapse.open{display:block;}
+.roadmap-svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto;}
+.node-ai{fill:rgba(143,214,255,0.08);stroke:var(--cyan);stroke-width:1.3;}
+.node-det{fill:rgba(242,200,121,0.08);stroke:var(--gold);stroke-width:1.3;}
+.node-data{fill:rgba(232,236,250,0.04);stroke:rgba(232,236,250,0.35);stroke-width:1.3;}
+.node-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.02em;text-anchor:middle;}
+.node-label-ai{fill:var(--cyan);}
+.node-label-det{fill:var(--gold);}
+.node-label-data{fill:var(--star);}
+.roadmap-legend{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin-top:18px;}
+.legend-item{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);}
+.legend-swatch{width:12px;height:12px;border-radius:2px;display:inline-block;}
+.legend-ai{background:rgba(143,214,255,0.15);border:1.3px solid var(--cyan);}
+.legend-det{background:rgba(242,200,121,0.15);border:1.3px solid var(--gold);}
+.legend-data{background:rgba(232,236,250,0.06);border:1.3px solid rgba(232,236,250,0.35);}
+.roadmap-note{color:var(--dim);font-size:13.5px;line-height:1.7;max-width:720px;margin:0 0 22px;}
+.roadmap-note strong{color:var(--star);font-weight:600;}
+
+/* flight log — now collapsible */
+.flightlog{position:relative;padding-left:52px;}
+.flight-line{position:absolute;left:26px;top:4px;bottom:4px;width:1px;background:repeating-linear-gradient(to bottom, var(--hairline) 0 5px, transparent 5px 10px);}
+.ship-marker{
+  position:absolute;left:27px;top:0;width:12px;height:12px;margin-left:-6px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 14px 4px rgba(143,214,255,0.55);
+  transition:top .35s ease;
+  z-index:2;
+}
+.waypoint{position:relative;margin-bottom:28px;}
+.waypoint:last-child{margin-bottom:0;}
+.waypoint::before{
+  content:'';position:absolute;left:-31px;top:9px;width:10px;height:10px;border-radius:50%;
+  background:var(--void);border:1px solid var(--gold);z-index:1;
+}
+.waypoint summary{
+  cursor:pointer;list-style:none;padding:18px 20px;
+  border:1px solid var(--hairline);border-radius:3px;
+  transition:border-color .2s, background .2s;
+}
+.waypoint summary::-webkit-details-marker{display:none;}
+.waypoint summary:hover{border-color:rgba(143,214,255,0.35);}
+.waypoint summary.flash-active{
+  animation: waypointFlash 1.1s ease-out;
+}
+@keyframes waypointFlash{
+  0%{
+    border-color:var(--cyan);
+    background:rgba(143,214,255,0.1);
+    box-shadow:0 0 22px 2px rgba(143,214,255,0.3);
+  }
+  100%{
+    border-color:var(--hairline);
+    background:transparent;
+    box-shadow:0 0 0 0 rgba(143,214,255,0);
+  }
+}
+.wp-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:4px;}
+.wp-role{font-size:18px;font-weight:600;}
+.wp-dates{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:0.05em;}
+.wp-org{color:var(--gold);font-size:12.5px;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.03em;}
+.wp-teaser{color:var(--dim);font-size:13.5px;display:flex;justify-content:space-between;gap:12px;align-items:center;}
+.chevron{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);transition:transform .25s ease;flex:none;}
+details[open] .chevron{transform:rotate(90deg);}
+.wp-body{padding:18px 22px 4px;}
+.waypoint ul{margin:0;padding-left:18px;color:var(--dim);}
+.waypoint li{margin-bottom:9px;font-size:14px;}
+
+/* active mission */
+.badge-solo{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;
+  background:rgba(143,214,255,0.1);color:var(--cyan);border:1px solid rgba(143,214,255,0.35);padding:5px 10px;border-radius:2px;margin-bottom:14px;}
+.progress-track{height:4px;background:var(--hairline-soft);border-radius:2px;margin:16px 0;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--gold));transition:width 1.4s cubic-bezier(.2,.9,.25,1);}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);border:1px solid var(--hairline);padding:6px 11px;border-radius:20px;}
+
+/* star charts (achievements) */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;}
+.chart-card{display:flex;gap:16px;align-items:flex-start;}
+.chart-card svg{flex:none;width:22px;height:22px;margin-top:2px;}
+.chart-card h3{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.06em;color:var(--star);margin-bottom:8px;}
+.chart-card p{margin:0;color:var(--dim);font-size:13.5px;}
+
+/* instrumentation (skills) */
+.instr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
+.instr-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.chip-list{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);border:1px solid var(--hairline);padding:6px 11px;border-radius:20px;transition:border-color .2s, color .2s;}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);}
+
+/* training modules (education) */
+.train-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+.train-card .tag-status{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);margin-bottom:10px;display:block;}
+.train-card h3{font-size:17px;margin-bottom:4px;}
+.train-card p{color:var(--dim);margin:0;font-size:13px;font-family:'IBM Plex Mono',monospace;}
+
+/* contact */
+.contact{text-align:center;}
+.contact h2{font-size:clamp(30px,5vw,50px);margin-bottom:16px;}
+.contact p{color:var(--dim);max-width:520px;margin:0 auto 36px;}
+.contact-links{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:10px;}
+footer{
+  text-align:center;padding:34px 6vw;color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.05em;
+  border-top:1px solid var(--hairline-soft);
+}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .reveal{opacity:1;transform:none;transition:none;}
+  .dot{animation:none;}
+  .progress-fill{transition:none;}
+}
+@media (max-width:920px){
+  .topbar nav{display:none;}
+}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="nebula"></div>
+
+<div class="topbar">
+  <div class="status"><span class="dot"></span> SIGNAL: OPEN TO WORK</div>
+  <nav>
+    <button type="button" data-scroll="flightlog">Flight Log</button>
+    <button type="button" data-scroll="fleet">Side Quests</button>
+    <button type="button" data-scroll="mission">Missions</button>
+    <button type="button" data-scroll="charts">Star Charts</button>
+    <button type="button" data-scroll="instrumentation">Instruments</button>
+    <button type="button" data-scroll="education">Training</button>
+    <button type="button" data-scroll="contact">Comms</button>
+  </nav>
+</div>
+
+<section class="hero" id="top">
+  <div class="eyebrow">Signal Acquired</div>
+  <h1 class="reveal">Chinmay Ranganath</h1>
+  <div class="subtitle reveal">Technical AI Product Manager</div>
+  <p class="tagline reveal">Charting a course through products, machine learning, and the occasional industrial robot. I turn ambiguous requirements into shipped roadmaps — and unreliable AI into something you can actually trust.</p>
+  <div class="coords reveal">TRANSMITTING FROM <span>12.9716° N, 77.5946° E</span> · BENGALURU, INDIA</div>
+  <div class="cta-row reveal">
+    <button type="button" class="btn btn-solid" data-scroll="fleet">Explore the Fleet</button>
+    <button type="button" class="btn btn-ghost" data-scroll="contact">Open a Channel</button>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span><span>Open to Technical AI PM roles</span><span>Ex-industrial robotics engineer</span><span>Cut LLM hallucinations ~70%</span><span>Scaled a platform 1K → 35K users</span><span>Speaks English · Japanese · German</span></span>
+    <span><span>Open to Technical AI PM roles</span><span>Ex-industrial robotics engineer</span><span>Cut LLM hallucinations ~70%</span><span>Scaled a platform 1K → 35K users</span><span>Speaks English · Japanese · German</span></span>
+  </div>
+</div>
+
+<section id="flightlog">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">01 · Flight Log</div>
+      <h2>Missions logged.</h2>
+    </div>
+    <div class="section-sub">Tap an entry to expand the full log.</div>
+  </div>
+  <div class="flightlog" id="flightlog-track">
+    <div class="flight-line"></div>
+    <div class="ship-marker" id="ship-marker"></div>
+
+    <details class="waypoint reveal">
+      <summary>
+        <div class="wp-head">
+          <div class="wp-role">Agile Delivery Lead / Agile Business Analyst</div>
+          <div class="wp-dates">OCT 2023 — JUN 2026</div>
+        </div>
+        <div class="wp-org">State of Iowa</div>
+        <div class="wp-teaser"><span>Led the team that grew the platform from ~1K to 35,000+ monthly users.</span><span class="chevron">▶</span></div>
+      </summary>
+      <div class="wp-body">
+        <ul>
+          <li>Served as product lead for a cross-functional team of 3 engineers, translating stakeholder needs into roadmap priorities and deliverables.</li>
+          <li>Led customer discovery sessions across multiple state agencies, gathering requirements and driving product decisions.</li>
+          <li>Championed platform architecture modernization, enabling agency-specific customization and supporting growth from roughly 1,000 to over 35,000 monthly users.</li>
+          <li>Implemented product analytics with Google Tag Manager and dashboards to measure adoption, downloads, previews, and active usage.</li>
+          <li>Led onboarding, training, and rollout across multiple agencies while balancing enterprise priorities against individual feature requests.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="waypoint reveal">
+      <summary>
+        <div class="wp-head">
+          <div class="wp-role">Machine Learning Intern</div>
+          <div class="wp-dates">MAY 2023 — SEP 2023</div>
+        </div>
+        <div class="wp-org">AI Camp</div>
+        <div class="wp-teaser"><span>Cut chatbot hallucinations ~70% and taught Computer Vision to 50+ students.</span><span class="chevron">▶</span></div>
+      </summary>
+      <div class="wp-body">
+        <ul>
+          <li>Led the Computer Vision track — created curriculum and taught AI concepts to 50+ students.</li>
+          <li>Mentored 32 students across four cohorts to build and deploy AI web applications.</li>
+          <li>Reduced internal LLM chatbot hallucinations by approximately 70% using LangChain and NVIDIA NeMo Guardrails.</li>
+          <li>Built AI applications using Python, Flask, Hugging Face, JavaScript, HTML, and CSS.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="waypoint reveal">
+      <summary>
+        <div class="wp-head">
+          <div class="wp-role">Industrial Automation & Data Engineer</div>
+          <div class="wp-dates">AUG 2018 — NOV 2020</div>
+        </div>
+        <div class="wp-org">ElringKlinger Marusan Co., Japan</div>
+        <div class="wp-teaser"><span>Programmed industrial robots for a Toyota production line.</span><span class="chevron">▶</span></div>
+      </summary>
+      <div class="wp-body">
+        <ul>
+          <li>Programmed and optimized Yaskawa industrial robots for truck engine heat shield production.</li>
+          <li>Redesigned tooling and robotic workflows to reduce defects and improve manufacturing cycle time.</li>
+          <li>Supported installation, testing, and optimization of a new production line for Toyota.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="fleet" class="wide">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">02 · Side Quests</div>
+      <h2>Side quests.</h2>
+    </div>
+    <div class="section-sub">Solo missions that taught me a lot — not assigned, not reviewed, just built because I wanted to understand how it worked.</div>
+  </div>
+  <div class="fleet-grid">
+
+    <div class="card fleet-card reveal">
+      <svg class="fleet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 21V9l8-5 8 5v12"/>
+        <path d="M9 21v-6h6v6"/>
+        <path d="M4 9l8-5 8 5"/>
+      </svg>
+      <h3>Enterprise Platform Expansion</h3>
+      <p>Led the product and analytics work behind scaling a state agency platform from ~1,000 to 35,000+ monthly users.</p>
+      <div class="fleet-tags"><span class="fleet-tag">Product Strategy</span><span class="fleet-tag">Customer Discovery</span><span class="fleet-tag">Analytics</span></div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <button class="fleet-link demo-toggle" type="button" data-target="iowa-demo" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;">▶ Case Study</button>
+      </div>
+    </div>
+
+    <div class="card fleet-card reveal">
+      <svg class="fleet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 21l3.6-1.1L18 9.5a1.5 1.5 0 0 0 0-2.1l-1.4-1.4a1.5 1.5 0 0 0-2.1 0L4.1 17.4 3 21Z"/>
+        <path d="M13.5 7l3 3"/>
+      </svg>
+      <h3>sketchful.AI</h3>
+      <p>A drawing game where you sketch a prompt and a model guesses what it is — inspired by sketchful.io and Google's Quick, Draw!</p>
+      <div class="fleet-tags"><span class="fleet-tag">Python</span><span class="fleet-tag">Flask</span><span class="fleet-tag">Computer Vision</span></div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <a class="fleet-link" href="https://github.com/bUZgy/sketchful.AI" target="_blank" rel="noopener">View Repo ↗</a>
+        <button class="fleet-link demo-toggle" type="button" data-target="sketchful-demo" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;">▶ Play Demo</button>
+      </div>
+    </div>
+
+    <div class="card fleet-card reveal">
+      <svg class="fleet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h4M4 4v4M20 4h-4M20 4v4M4 20h4M4 20v-4M20 20h-4M20 20v-4"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+      <h3>X-Ray Weapon Detector</h3>
+      <p>Upload an X-ray image and a model flags possible threats — guns, knives — with bounding boxes around detected objects.</p>
+      <div class="fleet-tags"><span class="fleet-tag">Python</span><span class="fleet-tag">Flask</span><span class="fleet-tag">Object Detection</span></div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <a class="fleet-link" href="https://github.com/bUZgy/x-ray-weapon-detector" target="_blank" rel="noopener">View Repo ↗</a>
+        <button class="fleet-link demo-toggle" type="button" data-target="xray-demo" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;">▶ Try It</button>
+      </div>
+    </div>
+
+    <div class="card fleet-card reveal">
+      <svg class="fleet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.5"/>
+        <circle cx="9" cy="10.5" r="0.8" fill="currentColor" stroke="none"/>
+        <circle cx="15" cy="10.5" r="0.8" fill="currentColor" stroke="none"/>
+        <path d="M9 15c1 1 5 1 6 0"/>
+      </svg>
+      <h3>Face Attribute Classifier</h3>
+      <p>A computer vision model that predicts age, gender, and ethnicity from a face image.</p>
+      <div class="fleet-tags"><span class="fleet-tag">Python</span><span class="fleet-tag">Flask</span><span class="fleet-tag">Computer Vision</span></div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <a class="fleet-link" href="https://github.com/bUZgy/race-age-gender-classifier" target="_blank" rel="noopener">View Repo ↗</a>
+        <button class="fleet-link demo-toggle" type="button" data-target="face-demo" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;">▶ Try It</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card demo-panel" id="sketchful-demo">
+    <div class="demo-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px;">Live Demo · Real Model</div>
+        <h3 style="font-size:20px;">Draw: <span id="demo-word">—</span></h3>
+      </div>
+      <div class="demo-controls-top">
+        <button class="btn btn-ghost btn-sm" type="button" id="new-word-btn">🔀 New Word</button>
+        <button class="fleet-link demo-toggle" type="button" data-target="sketchful-demo" style="background:none;border:none;cursor:pointer;">✕ Close</button>
+      </div>
+    </div>
+
+    <div class="demo-body">
+      <div class="canvas-wrap">
+        <canvas id="sketch-canvas" width="480" height="480"></canvas>
+        <div class="canvas-controls">
+          <button class="btn btn-ghost btn-sm" type="button" id="clear-btn">Clear</button>
+          <button class="btn btn-solid btn-sm" type="button" id="guess-btn">Guess ▶</button>
+        </div>
+      </div>
+
+      <div class="result-panel">
+        <div class="result-status" id="result-status">Draw something, then hit Guess.</div>
+        <div class="result-list" id="result-list"></div>
+      </div>
+    </div>
+    <p class="demo-note">This calls the actual Roboflow model behind sketchful.AI — a real prediction, not a canned response.</p>
+  </div>
+
+  <!-- X-Ray Weapon Detector demo -->
+  <div class="card demo-panel" id="xray-demo">
+    <div class="demo-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px;">Live Demo · Real Model</div>
+        <h3 style="font-size:20px;">X-Ray Weapon Detector</h3>
+      </div>
+      <button class="fleet-link demo-toggle" type="button" data-target="xray-demo" style="background:none;border:none;cursor:pointer;">✕ Close</button>
+    </div>
+
+    <div class="demo-body">
+      <div class="canvas-wrap">
+        <div class="upload-dropzone" id="xray-dropzone">
+          <input type="file" accept="image/*" id="xray-file-input" class="file-input-hidden">
+          <span id="xray-dropzone-label">Click or drop an X-ray image here</span>
+        </div>
+        <div class="preview-wrap" id="xray-preview-wrap" style="display:none;">
+          <canvas id="xray-canvas"></canvas>
+        </div>
+        <div class="canvas-controls">
+          <button class="btn btn-ghost btn-sm" type="button" id="xray-clear-btn">Clear</button>
+          <button class="btn btn-solid btn-sm" type="button" id="xray-guess-btn">Detect ▶</button>
+        </div>
+      </div>
+
+      <div class="result-panel">
+        <div class="result-status" id="xray-status">Upload an X-ray image, then hit Detect.</div>
+        <div class="result-list" id="xray-result-list"></div>
+      </div>
+    </div>
+    <p class="demo-note">This calls the actual Roboflow object-detection model behind this project — a real prediction, not a canned response.</p>
+  </div>
+
+  <!-- Face Attribute Classifier demo -->
+  <div class="card demo-panel" id="face-demo">
+    <div class="demo-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px;">Live Demo · Real Models</div>
+        <h3 style="font-size:20px;">Face Attribute Classifier</h3>
+      </div>
+      <button class="fleet-link demo-toggle" type="button" data-target="face-demo" style="background:none;border:none;cursor:pointer;">✕ Close</button>
+    </div>
+
+    <div class="demo-body">
+      <div class="canvas-wrap">
+        <div class="upload-dropzone" id="face-dropzone">
+          <input type="file" accept="image/*" id="face-file-input" class="file-input-hidden">
+          <span id="face-dropzone-label">Click or drop a face photo here</span>
+        </div>
+        <div class="preview-wrap" id="face-preview-wrap" style="display:none;">
+          <canvas id="face-canvas"></canvas>
+        </div>
+        <div class="canvas-controls">
+          <button class="btn btn-ghost btn-sm" type="button" id="face-clear-btn">Clear</button>
+          <button class="btn btn-solid btn-sm" type="button" id="face-guess-btn">Classify ▶</button>
+        </div>
+      </div>
+
+      <div class="result-panel">
+        <div class="result-status" id="face-status">Upload a face photo, then hit Classify.</div>
+        <div class="result-list" id="face-result-list"></div>
+      </div>
+    </div>
+    <p class="demo-note">Calls three separate Hugging Face models (age, gender, ethnicity) in parallel — real predictions, not canned responses. First call may take a few seconds while the models wake up.</p>
+  </div>
+
+  <!-- State of Iowa Platform case study -->
+  <div class="card demo-panel" id="iowa-demo">
+    <div class="demo-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px;">Case Study</div>
+        <h3 style="font-size:20px;">Enterprise Platform Expansion</h3>
+      </div>
+      <button class="fleet-link demo-toggle" type="button" data-target="iowa-demo" style="background:none;border:none;cursor:pointer;">✕ Close</button>
+    </div>
+
+    <div class="case-study-grid">
+      <div>
+        <div class="case-label">Problem</div>
+        <p class="case-text">The platform served multiple state agencies with genuinely different needs, but the architecture didn't support agency-specific customization — every change was a one-size-fits-all tradeoff between enterprise priorities and individual feature requests. There was also no clear picture of who was actually using the platform or how.</p>
+      </div>
+      <div>
+        <div class="case-label">Approach</div>
+        <p class="case-text">Ran customer discovery across agencies to surface real requirements, then championed an architecture shift that let the platform support per-agency customization without fragmenting the codebase. Stood up product analytics — Google Tag Manager and dashboards — to measure adoption instead of guessing, and led onboarding and training as new agencies came on board.</p>
+      </div>
+      <div>
+        <div class="case-label">Tech Stack</div>
+        <div class="tag-row" style="margin-top:8px;"><span class="tag">Product Strategy</span><span class="tag">Customer Discovery</span><span class="tag">Google Tag Manager</span><span class="tag">Agile</span><span class="tag">Azure DevOps</span></div>
+      </div>
+      <div>
+        <div class="case-label">Outcome</div>
+        <p class="case-text">Grew from roughly 1,000 to over 35,000 monthly active users, and the platform became the reference point for how to balance enterprise-wide priorities against agency-specific needs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mission">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">03 · Active Missions</div>
+      <h2>Currently in orbit.</h2>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="badge-solo">In Progress</span>
+    <h3 style="font-size:22px;margin-bottom:10px;">A Vertical SaaS Platform for Dairy Operations</h3>
+    <p style="color:var(--dim);max-width:640px;margin:0 0 20px;">Built a vertical SaaS platform for a local dairy business after customer discovery revealed that manual operational processes—not customer demand—were limiting growth. Led product strategy from problem discovery through MVP definition, prioritization, and implementation to enable scalable subscription and delivery operations.</p>
+
+    <button class="fleet-link roadmap-toggle" type="button" data-target="milk-details-collapse" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">▶ View Details</button>
+
+    <div class="roadmap-collapse" id="milk-details-collapse">
+      <div class="case-study-grid" style="margin-top:22px;">
+        <div style="grid-column:1/-1;">
+          <div class="case-label">Overview</div>
+          <p class="case-text">A local dairy business owner was forced to reduce production because manual customer, subscription, and delivery management could no longer support business growth. After a previous software initiative failed, I led the product from customer discovery through MVP definition and development.</p>
+        </div>
+        <div style="grid-column:1/-1;">
+          <div class="case-label">My Contributions</div>
+          <ul class="case-list">
+            <li>Conducted customer discovery to identify operational bottlenecks and define the highest-impact product opportunities.</li>
+            <li>Defined the MVP and prioritized features around customer management, subscription tracking, delivery scheduling, and operational reporting.</li>
+            <li>Made key product trade-offs, including excluding payment integration after determining existing UPI workflows already met customer needs.</li>
+            <li>Defined success metrics and dashboards to monitor business performance, including active subscriptions, milk production, customer growth, and outstanding payments.</li>
+            <li>Led end-to-end product development, translating business requirements into product specifications and implementation using React, TypeScript, Flask, and Python.</li>
+          </ul>
+        </div>
+        <div style="grid-column:1/-1;">
+          <div class="case-label">Outcome</div>
+          <p class="case-text">The platform is being built to remove operational constraints that previously limited business growth, enabling the owner to scale customer operations through a purpose-built SaaS solution instead of manual processes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-track"><div class="progress-fill" id="mission-progress"></div></div>
+    <div class="tag-row">
+      <span class="tag">React</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Flask</span>
+      <span class="tag">Subscription workflows</span>
+      <span class="tag">Product strategy</span>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:20px;">
+    <span class="badge-solo">In Progress · Phase 1 Shipped</span>
+    <h3 style="font-size:22px;margin-bottom:10px;">Dota 2 AI Coach</h3>
+    <p style="color:var(--dim);max-width:680px;margin:0 0 20px;">An end-to-end system that turns raw match replays into personalized coaching feedback. Phase one — replay parsing and feature extraction — is built and shipped; everything below is the planned pipeline from structured game state through mistake detection to natural-language coaching.</p>
+
+    <button class="fleet-link roadmap-toggle" type="button" data-target="dota-roadmap-collapse" style="background:none;border:none;cursor:pointer;color:var(--cyan);font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">▶ View Roadmap</button>
+
+    <div class="roadmap-collapse" id="dota-roadmap-collapse">
+    <div class="roadmap-wrap" style="margin-top:22px;">
+    <svg class="roadmap-svg" viewBox="0 0 640 834" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dota 2 AI Coach architecture roadmap">
+      <!-- connectors -->
+      <g stroke="rgba(232,236,250,0.22)" stroke-width="1.5" fill="none">
+        <line x1="320" y1="50" x2="320" y2="86"/>
+        <line x1="320" y1="138" x2="320" y2="174"/>
+        <line x1="320" y1="218" x2="320" y2="240"/>
+        <line x1="110" y1="240" x2="530" y2="240"/>
+        <line x1="110" y1="240" x2="110" y2="264"/>
+        <line x1="320" y1="240" x2="320" y2="264"/>
+        <line x1="530" y1="240" x2="530" y2="264"/>
+        <line x1="320" y1="308" x2="320" y2="346"/>
+        <line x1="110" y1="308" x2="110" y2="410"/>
+        <line x1="320" y1="390" x2="320" y2="410"/>
+        <line x1="530" y1="308" x2="530" y2="410"/>
+        <line x1="110" y1="410" x2="530" y2="410"/>
+        <line x1="320" y1="410" x2="320" y2="428"/>
+        <line x1="320" y1="476" x2="320" y2="512"/>
+        <line x1="320" y1="556" x2="320" y2="580"/>
+        <line x1="110" y1="580" x2="530" y2="580"/>
+        <line x1="110" y1="580" x2="110" y2="602"/>
+        <line x1="320" y1="580" x2="320" y2="602"/>
+        <line x1="530" y1="580" x2="530" y2="602"/>
+        <line x1="110" y1="646" x2="110" y2="666"/>
+        <line x1="320" y1="646" x2="320" y2="666"/>
+        <line x1="530" y1="646" x2="530" y2="666"/>
+        <line x1="110" y1="666" x2="530" y2="666"/>
+        <line x1="320" y1="666" x2="320" y2="684"/>
+        <line x1="320" y1="728" x2="320" y2="762"/>
+      </g>
+
+      <!-- 1. Replay (data) -->
+      <rect x="255" y="10" width="130" height="40" rx="3" class="node-data"/>
+      <text x="320" y="34" class="node-label node-label-data">REPLAY</text>
+
+      <!-- 2. Replay Parser / Feature Extraction (deterministic, phase 1) -->
+      <rect x="160" y="86" width="320" height="52" rx="3" class="node-det"/>
+      <text x="320" y="107" class="node-label node-label-det">REPLAY PARSER /</text>
+      <text x="320" y="122" class="node-label node-label-det">FEATURE EXTRACTION</text>
+
+      <!-- 3. Structured Game State (data) -->
+      <rect x="190" y="174" width="260" height="44" rx="3" class="node-data"/>
+      <text x="320" y="200" class="node-label node-label-data">STRUCTURED GAME STATE</text>
+
+      <!-- 4a Event Model (deterministic) -->
+      <rect x="25" y="264" width="170" height="44" rx="3" class="node-det"/>
+      <text x="110" y="290" class="node-label node-label-det">EVENT MODEL</text>
+
+      <!-- 4b GNN Encoder (AI) -->
+      <rect x="235" y="264" width="170" height="44" rx="3" class="node-ai"/>
+      <text x="320" y="290" class="node-label node-label-ai">GNN ENCODER</text>
+
+      <!-- 4c Statistics Engine (deterministic) -->
+      <rect x="445" y="264" width="170" height="44" rx="3" class="node-det"/>
+      <text x="530" y="290" class="node-label node-label-det">STATISTICS ENGINE</text>
+
+      <!-- 5. State Embedding (data) -->
+      <rect x="225" y="346" width="190" height="44" rx="3" class="node-data"/>
+      <text x="320" y="372" class="node-label node-label-data">STATE EMBEDDING</text>
+
+      <!-- 6. Temporal Transformer (AI) -->
+      <rect x="205" y="428" width="230" height="48" rx="3" class="node-ai"/>
+      <text x="320" y="456" class="node-label node-label-ai">TEMPORAL TRANSFORMER</text>
+
+      <!-- 7. Context Embedding (data) -->
+      <rect x="215" y="512" width="210" height="44" rx="3" class="node-data"/>
+      <text x="320" y="538" class="node-label node-label-data">CONTEXT EMBEDDING</text>
+
+      <!-- 8a Action Model (AI) -->
+      <rect x="25" y="602" width="170" height="44" rx="3" class="node-ai"/>
+      <text x="110" y="628" class="node-label node-label-ai">ACTION MODEL</text>
+
+      <!-- 8b Value Model (AI) -->
+      <rect x="235" y="602" width="170" height="44" rx="3" class="node-ai"/>
+      <text x="320" y="628" class="node-label node-label-ai">VALUE MODEL</text>
+
+      <!-- 8c Player Embedding (AI) -->
+      <rect x="445" y="602" width="170" height="44" rx="3" class="node-ai"/>
+      <text x="530" y="628" class="node-label node-label-ai">PLAYER EMBEDDING</text>
+
+      <!-- 9. Mistake Detection (deterministic) -->
+      <rect x="205" y="684" width="230" height="44" rx="3" class="node-det"/>
+      <text x="320" y="710" class="node-label node-label-det">MISTAKE DETECTION</text>
+
+      <!-- 10. LLM Coaching Feedback (AI) -->
+      <rect x="185" y="762" width="270" height="52" rx="3" class="node-ai"/>
+      <text x="320" y="792" class="node-label node-label-ai">LLM COACHING FEEDBACK</text>
+    </svg>
+
+      <div class="roadmap-legend">
+        <span class="legend-item"><span class="legend-swatch legend-ai"></span>Learned model</span>
+        <span class="legend-item"><span class="legend-swatch legend-det"></span>Deterministic / rule-based</span>
+        <span class="legend-item"><span class="legend-swatch legend-data"></span>Data structure</span>
+      </div>
+    </div>
+
+    <p class="roadmap-note">Not every stage here needs to be a model. <strong>Event Model</strong> and <strong>Statistics Engine</strong> stay rule-based — the logic is well-defined and doesn't benefit from being learned. <strong>Mistake Detection</strong> is a deterministic comparison against the Value Model's output, not a separate network. The plan is to spend model capacity only where the problem is genuinely ambiguous — encoding game state, modeling temporal context, predicting actions and value, and turning a detected mistake into coaching language — and keep everything else as fast, explainable code.</p>
+
+    <div class="tag-row">
+      <span class="tag">Java</span>
+      <span class="tag">Graph Neural Networks</span>
+      <span class="tag">Transformers</span>
+      <span class="tag">LLMs</span>
+    </div>
+    <a class="fleet-link" href="https://github.com/bUZgy/dota2-replay-extractor" target="_blank" rel="noopener" style="display:inline-block;margin-top:16px;">View Phase 1 Repo ↗</a>
+    </div>
+  </div>
+
+</section>
+
+<section id="charts">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">04 · Star Charts</div>
+      <h2>Discoveries logged.</h2>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--cyan)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Signal Clarity +70%</h3><p>Cut chatbot hallucinations by ~70% using LangChain and NVIDIA NeMo Guardrails.</p></div>
+    </div>
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--gold)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Fleet Expansion</h3><p>Grew the State of Iowa platform from ~1,000 to 35,000+ monthly users.</p></div>
+    </div>
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--cyan)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Crew Trained</h3><p>Mentored 32 students across four cohorts to ship AI web apps.</p></div>
+    </div>
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--gold)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Navigation Charts Drawn</h3><p>Designed and taught the Computer Vision curriculum to 50+ students.</p></div>
+    </div>
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--cyan)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Multi-Lingual Comms</h3><p>Japanese — JLPT N2 · German — B2.</p></div>
+    </div>
+    <div class="card chart-card reveal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.6 9.2 L22 9.6 L16.2 14.2 L18.2 21.4 L12 17.2 L5.8 21.4 L7.8 14.2 L2 9.6 L9.4 9.2 Z" stroke="var(--gold)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><h3>Ground Control</h3><p>Optimized a robotic production line install for Toyota in Japan.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="instrumentation">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">05 · Instrumentation</div>
+      <h2>On-board systems.</h2>
+    </div>
+  </div>
+  <div class="instr-grid">
+    <div class="card reveal">
+      <div class="instr-title">Product</div>
+      <div class="chip-list">
+        <span class="chip">Product Strategy</span><span class="chip">Roadmapping</span><span class="chip">Customer Discovery</span><span class="chip">Stakeholder Mgmt</span><span class="chip">Agile</span><span class="chip">Jira</span><span class="chip">Azure DevOps</span>
+      </div>
+    </div>
+    <div class="card reveal">
+      <div class="instr-title">AI / ML</div>
+      <div class="chip-list">
+        <span class="chip">LLMs</span><span class="chip">LangChain</span><span class="chip">NeMo Guardrails</span><span class="chip">Hugging Face</span><span class="chip">PyTorch</span><span class="chip">TensorFlow</span><span class="chip">Computer Vision</span><span class="chip">NLP</span>
+      </div>
+    </div>
+    <div class="card reveal">
+      <div class="instr-title">Technical</div>
+      <div class="chip-list">
+        <span class="chip">Python</span><span class="chip">Flask</span><span class="chip">React</span><span class="chip">TypeScript</span><span class="chip">SQL</span><span class="chip">REST APIs</span><span class="chip">Git</span>
+      </div>
+    </div>
+    <div class="card reveal">
+      <div class="instr-title">Analytics</div>
+      <div class="chip-list">
+        <span class="chip">Google Tag Manager</span><span class="chip">Power BI</span><span class="chip">Tableau</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">06 · Training Modules</div>
+      <h2>Certified for flight.</h2>
+    </div>
+  </div>
+  <div class="train-row">
+    <div class="card train-card reveal">
+      <span class="tag-status">MODULE COMPLETE</span>
+      <h3>M.S. Machine Learning</h3>
+      <p>Stevens Institute of Technology · 2021 – 2023</p>
+    </div>
+    <div class="card train-card reveal">
+      <span class="tag-status">MODULE COMPLETE</span>
+      <h3>B.E. Mechanical Engineering</h3>
+      <p>PES Institute of Technology South Campus</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="eyebrow" style="justify-content:center;">07 · Open a Channel</div>
+  <h2 class="reveal">Let's talk trajectory.</h2>
+  <p class="reveal">Open to Technical AI PM roles and interesting product problems. Based in Bengaluru, happy to work across time zones.</p>
+  <div class="contact-links reveal">
+    <a class="btn btn-solid" href="mailto:chinmayranganath@gmail.com">Email Me</a>
+    <a class="btn btn-ghost" href="https://linkedin.com/in/chinmay-rng" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="btn btn-ghost" href="https://github.com/bUZgy" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</section>
+
+<footer>
+  END TRANSMISSION · © 2026 CHINMAY RANGANATH · BENGALURU, INDIA · +91 9663187092
+</footer>
+
+<script>
+// Starfield
+const starCanvas = document.getElementById('starfield');
+const starCtx = starCanvas.getContext('2d');
+let w,h,stars=[];
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function resize(){
+  w = starCanvas.width = window.innerWidth;
+  h = starCanvas.height = window.innerHeight;
+}
+function makeStars(){
+  const count = Math.floor((w*h)/9000);
+  stars = Array.from({length:count},()=>({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    r:Math.random()*1.3+0.3,
+    phase:Math.random()*Math.PI*2,
+    speed:Math.random()*0.6+0.2
+  }));
+}
+function drawStatic(){
+  starCtx.clearRect(0,0,w,h);
+  stars.forEach(s=>{
+    starCtx.globalAlpha = 0.6;
+    starCtx.fillStyle = '#E8ECFA';
+    starCtx.beginPath();
+    starCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    starCtx.fill();
+  });
+  starCtx.globalAlpha = 1;
+}
+function animate(t){
+  starCtx.clearRect(0,0,w,h);
+  stars.forEach(s=>{
+    const tw = 0.35 + 0.65*Math.abs(Math.sin(t*0.001*s.speed + s.phase));
+    starCtx.globalAlpha = tw;
+    starCtx.fillStyle = '#E8ECFA';
+    starCtx.beginPath();
+    starCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    starCtx.fill();
+  });
+  starCtx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+resize(); makeStars();
+if(reduced){ drawStatic(); } else { requestAnimationFrame(animate); }
+window.addEventListener('resize', ()=>{ resize(); makeStars(); if(reduced) drawStatic(); });
+
+// In-page nav links — real buttons with a data-scroll target (not <a href>),
+// so there's no navigation target for any embedding context to warn about.
+document.querySelectorAll('[data-scroll]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const target = document.getElementById(btn.dataset.scroll);
+    if(!target) return;
+    target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  });
+});
+
+// Reveal on scroll
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:0.12});
+revealEls.forEach(el=>io.observe(el));
+
+// Mission progress bar
+const missionBar = document.getElementById('mission-progress');
+const missionObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ missionBar.style.width = '58%'; missionObserver.unobserve(e.target); }
+  });
+},{threshold:0.4});
+missionObserver.observe(missionBar);
+
+// Ship marker snaps to whichever waypoint's dot is currently active as you scroll
+const track = document.getElementById('flightlog-track');
+const ship = document.getElementById('ship-marker');
+let ticking = false;
+let activeWaypoint = null;
+
+function flashWaypoint(wp){
+  if(reduced) return; // skip decorative flash for reduced-motion users
+  const summary = wp.querySelector('summary');
+  summary.classList.remove('flash-active');
+  void summary.offsetWidth; // force reflow so the animation restarts if re-triggered
+  summary.classList.add('flash-active');
+}
+
+function updateShip(){
+  const waypoints = Array.from(track.querySelectorAll('.waypoint'));
+  if(!waypoints.length){ ticking = false; return; }
+
+  const refLine = window.innerHeight * 0.45; // where we consider a waypoint "active"
+  const dotOffset = 9 + 5; // matches .waypoint::before top:9px + half of its 10px height
+
+  let closest = waypoints[0];
+  let closestDist = Infinity;
+  waypoints.forEach(wp=>{
+    const rect = wp.getBoundingClientRect();
+    const dotViewportY = rect.top + dotOffset;
+    const dist = Math.abs(dotViewportY - refLine);
+    if(dist < closestDist){ closestDist = dist; closest = wp; }
+  });
+
+  const dotTopInTrack = closest.offsetTop + dotOffset - ship.offsetHeight/2;
+  ship.style.top = dotTopInTrack + 'px';
+
+  if(closest !== activeWaypoint){
+    flashWaypoint(closest);
+    activeWaypoint = closest;
+  }
+  ticking = false;
+}
+window.addEventListener('scroll', ()=>{
+  if(!ticking){ requestAnimationFrame(updateShip); ticking = true; }
+},{passive:true});
+window.addEventListener('resize', updateShip);
+window.addEventListener('toggle', updateShip, true);
+updateShip();
+
+// ============================================================
+// sketchful.AI live demo — real drawing canvas + Roboflow model
+// ============================================================
+
+// Paste the URL you get from `wrangler deploy` (see sketchful-worker/DEPLOY.md)
+// No trailing slash — the code below appends /sketchful, /xray, /face itself.
+const DEMO_WORKER_URL = "PASTE_YOUR_WORKER_URL_HERE";
+
+function workerNotReady(statusEl){
+  if(DEMO_WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE"){
+    statusEl.textContent = "Demo not connected yet — deploy the Cloudflare Worker (see sketchful-worker/DEPLOY.md) and paste its URL into DEMO_WORKER_URL in this file.";
+    statusEl.className = 'result-status error';
+    return true;
+  }
+  return false;
+}
+
+// ---- roadmap collapse toggle (Dota 2 AI Coach card) ----
+document.querySelectorAll('.roadmap-toggle').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const panel = document.getElementById(btn.dataset.target);
+    if(!panel) return;
+    const isOpen = panel.classList.contains('open');
+    if(isOpen){
+      panel.classList.remove('open');
+      btn.textContent = '▶ View Roadmap';
+    } else {
+      panel.classList.add('open');
+      btn.textContent = '▲ Hide Roadmap';
+    }
+  });
+});
+
+// ---- generic panel open/close (works across all four demo panels) ----
+document.querySelectorAll('.demo-toggle').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const panel = document.getElementById(btn.dataset.target);
+    if(!panel) return;
+    const isOpen = panel.classList.contains('open');
+    if(isOpen){
+      panel.classList.remove('open');
+      return;
+    }
+    panel.classList.add('open');
+    if(panel.id === 'sketchful-demo'){ initSketchCanvas(); pickWord(); }
+    if(panel.id === 'xray-demo'){ initUpload('xray'); }
+    if(panel.id === 'face-demo'){ initUpload('face'); }
+    panel.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'center'});
+  });
+});
+
+// ============================================================
+// sketchful.AI — drawing canvas + doodle classifier
+// ============================================================
+const SKETCH_WORDS = [
+  "Baseball","Baseball bat","Bat","Bicycle","Bowtie","Canoe","Carrot",
+  "Coffee cup","Crab","Donut","Dragon","Envelope","Fan","Fish","Giraffe",
+  "Hurricane","Leaf","Moon","Parrot","Pencil","Sailboat","Skull","Snail",
+  "Snowflake","Sock","Star","Syringe","Triangle","Umbrella","Wheel"
+];
+
+const demoWordEl = document.getElementById('demo-word');
+const newWordBtn = document.getElementById('new-word-btn');
+const sketchCanvas = document.getElementById('sketch-canvas');
+const clearBtn = document.getElementById('clear-btn');
+const guessBtn = document.getElementById('guess-btn');
+const resultStatus = document.getElementById('result-status');
+const resultList = document.getElementById('result-list');
+
+let sketchCtx, drawing = false, lastX = 0, lastY = 0;
+
+function pickWord(){
+  const w = SKETCH_WORDS[Math.floor(Math.random()*SKETCH_WORDS.length)];
+  demoWordEl.textContent = w;
+}
+
+function initSketchCanvas(){
+  if(sketchCtx) return;
+  sketchCtx = sketchCanvas.getContext('2d');
+  clearSketchCanvas();
+
+  function pos(e){
+    const rect = sketchCanvas.getBoundingClientRect();
+    const scaleX = sketchCanvas.width / rect.width;
+    const scaleY = sketchCanvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX-rect.left)*scaleX, y: (clientY-rect.top)*scaleY };
+  }
+  function start(e){ drawing = true; const p = pos(e); lastX = p.x; lastY = p.y; e.preventDefault(); }
+  function move(e){
+    if(!drawing) return;
+    const p = pos(e);
+    sketchCtx.strokeStyle = '#111';
+    sketchCtx.lineWidth = 8;
+    sketchCtx.lineCap = 'round';
+    sketchCtx.lineJoin = 'round';
+    sketchCtx.beginPath();
+    sketchCtx.moveTo(lastX,lastY);
+    sketchCtx.lineTo(p.x,p.y);
+    sketchCtx.stroke();
+    lastX = p.x; lastY = p.y;
+    e.preventDefault();
+  }
+  function end(){ drawing = false; }
+
+  sketchCanvas.addEventListener('mousedown', start);
+  sketchCanvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  sketchCanvas.addEventListener('touchstart', start, {passive:false});
+  sketchCanvas.addEventListener('touchmove', move, {passive:false});
+  sketchCanvas.addEventListener('touchend', end);
+}
+
+function clearSketchCanvas(){
+  sketchCtx.fillStyle = '#ffffff';
+  sketchCtx.fillRect(0,0,sketchCanvas.width,sketchCanvas.height);
+  resultStatus.textContent = 'Draw something, then hit Guess.';
+  resultStatus.className = 'result-status';
+  resultList.innerHTML = '';
+}
+
+function parseClassificationPredictions(data){
+  if(Array.isArray(data.predictions)){
+    return data.predictions
+      .map(p=>({label:p.class ?? p.label, confidence:p.confidence}))
+      .sort((a,b)=>b.confidence-a.confidence);
+  }
+  if(data.predictions && typeof data.predictions === 'object'){
+    return Object.entries(data.predictions)
+      .map(([k,v])=>({label:k, confidence: typeof v === 'object' ? v.confidence : v}))
+      .sort((a,b)=>b.confidence-a.confidence);
+  }
+  if(data.top){
+    return [{label:data.top, confidence:data.confidence ?? 0}];
+  }
+  return [];
+}
+
+function renderResultRows(listEl, preds, labelKey='label', confKey='confidence'){
+  listEl.innerHTML = '';
+  preds.slice(0,5).forEach(p=>{
+    const pct = Math.round((p[confKey]||0)*100);
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = `
+      <div class="result-row-head"><span class="label">${p[labelKey]}</span><span class="pct">${pct}%</span></div>
+      <div class="result-bar-track"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+    `;
+    listEl.appendChild(row);
+  });
+}
+
+async function submitGuess(){
+  if(workerNotReady(resultStatus)) return;
+  resultStatus.textContent = 'Asking the model…';
+  resultStatus.className = 'result-status loading';
+  resultList.innerHTML = '';
+
+  try{
+    const imageData = sketchCanvas.toDataURL('image/png');
+    const resp = await fetch(`${DEMO_WORKER_URL}/sketchful`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image: imageData })
+    });
+    const data = await resp.json();
+    if(data.error){
+      console.error('Worker/Roboflow error:', data);
+      resultStatus.textContent = 'Something went wrong calling the model — see console for details.';
+      resultStatus.className = 'result-status error';
+      return;
+    }
+    console.log('Roboflow sketchful response:', data);
+    const preds = parseClassificationPredictions(data);
+    if(!preds.length){
+      resultStatus.textContent = "No prediction returned — check the browser console for the raw response.";
+      resultStatus.className = 'result-status error';
+      return;
+    }
+    resultStatus.textContent = 'Top guesses:';
+    resultStatus.className = 'result-status';
+    renderResultRows(resultList, preds);
+  }catch(err){
+    console.error(err);
+    resultStatus.textContent = 'Network error reaching the demo backend.';
+    resultStatus.className = 'result-status error';
+  }
+}
+newWordBtn.addEventListener('click', pickWord);
+clearBtn.addEventListener('click', ()=>{ if(sketchCtx) clearSketchCanvas(); });
+guessBtn.addEventListener('click', submitGuess);
+
+// ============================================================
+// Shared image-upload handling (X-ray + Face demos)
+// ============================================================
+const uploadState = {}; // { xray: {img, canvas, ctx}, face: {...} }
+
+function initUpload(key){
+  if(uploadState[key]) return; // already wired
+  const dropzone = document.getElementById(`${key}-dropzone`);
+  const fileInput = document.getElementById(`${key}-file-input`);
+  const previewWrap = document.getElementById(`${key}-preview-wrap`);
+  const canvasEl = document.getElementById(`${key}-canvas`);
+  const statusEl = document.getElementById(`${key}-status`);
+  const resultListEl = document.getElementById(`${key}-result-list`);
+  const clearBtnEl = document.getElementById(`${key}-clear-btn`);
+  const guessBtnEl = document.getElementById(`${key}-guess-btn`);
+
+  const ctxEl = canvasEl.getContext('2d');
+  uploadState[key] = { img: null, canvas: canvasEl, ctx: ctxEl };
+
+  function loadFile(file){
+    if(!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        uploadState[key].img = img;
+        canvasEl.width = img.naturalWidth;
+        canvasEl.height = img.naturalHeight;
+        ctxEl.drawImage(img,0,0);
+        dropzone.style.display = 'none';
+        previewWrap.style.display = 'block';
+        statusEl.textContent = key === 'xray'
+          ? 'Image loaded. Hit Detect to scan for objects.'
+          : 'Image loaded. Hit Classify to run all three models.';
+        statusEl.className = 'result-status';
+        resultListEl.innerHTML = '';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  dropzone.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', ()=> loadFile(fileInput.files[0]));
+  ['dragover','dragenter'].forEach(evt=>{
+    dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.add('drag-over'); });
+  });
+  ['dragleave','drop'].forEach(evt=>{
+    dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.remove('drag-over'); });
+  });
+  dropzone.addEventListener('drop', (e)=>{
+    const file = e.dataTransfer.files[0];
+    loadFile(file);
+  });
+
+  clearBtnEl.addEventListener('click', ()=>{
+    uploadState[key].img = null;
+    fileInput.value = '';
+    previewWrap.style.display = 'none';
+    dropzone.style.display = 'flex';
+    statusEl.textContent = key === 'xray' ? 'Upload an X-ray image, then hit Detect.' : 'Upload a face photo, then hit Classify.';
+    statusEl.className = 'result-status';
+    resultListEl.innerHTML = '';
+  });
+
+  guessBtnEl.addEventListener('click', ()=>{
+    if(key === 'xray') runXrayDetection();
+    if(key === 'face') runFaceClassification();
+  });
+}
+
+// ---- X-ray weapon detector ----
+async function runXrayDetection(){
+  const statusEl = document.getElementById('xray-status');
+  const resultListEl = document.getElementById('xray-result-list');
+  const state = uploadState.xray;
+  if(!state || !state.img){
+    statusEl.textContent = 'Upload an image first.';
+    statusEl.className = 'result-status error';
+    return;
+  }
+  if(workerNotReady(statusEl)) return;
+
+  statusEl.textContent = 'Scanning for objects…';
+  statusEl.className = 'result-status loading';
+  resultListEl.innerHTML = '';
+
+  try{
+    const imageData = state.canvas.toDataURL('image/jpeg', 0.9);
+    const resp = await fetch(`${DEMO_WORKER_URL}/xray`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image: imageData })
+    });
+    const data = await resp.json();
+    if(data.error){
+      console.error('Worker/Roboflow error:', data);
+      statusEl.textContent = 'Something went wrong calling the model — see console for details.';
+      statusEl.className = 'result-status error';
+      return;
+    }
+    console.log('Roboflow xray response:', data);
+
+    // redraw base image, then overlay boxes
+    state.ctx.drawImage(state.img, 0, 0);
+    const preds = Array.isArray(data.predictions) ? data.predictions : [];
+    if(!preds.length){
+      statusEl.textContent = 'No objects detected in this image.';
+      statusEl.className = 'result-status';
+      return;
+    }
+    statusEl.textContent = `${preds.length} object${preds.length>1?'s':''} detected:`;
+    statusEl.className = 'result-status';
+
+    preds.forEach(p=>{
+      // Roboflow object detection: x,y are the CENTER of the box
+      const boxW = p.width, boxH = p.height;
+      const x0 = p.x - boxW/2, y0 = p.y - boxH/2;
+      state.ctx.strokeStyle = '#F2C879';
+      state.ctx.lineWidth = Math.max(3, state.canvas.width*0.004);
+      state.ctx.strokeRect(x0, y0, boxW, boxH);
+      const label = `${p.class} ${Math.round((p.confidence||0)*100)}%`;
+      state.ctx.font = `${Math.max(16, state.canvas.width*0.025)}px 'IBM Plex Mono', monospace`;
+      const textW = state.ctx.measureText(label).width + 12;
+      state.ctx.fillStyle = '#F2C879';
+      state.ctx.fillRect(x0, Math.max(0,y0-24), textW, 24);
+      state.ctx.fillStyle = '#0B0620';
+      state.ctx.fillText(label, x0+6, Math.max(16,y0-6));
+    });
+
+    renderResultRows(resultListEl, preds.map(p=>({label:p.class, confidence:p.confidence})));
+  }catch(err){
+    console.error(err);
+    statusEl.textContent = 'Network error reaching the demo backend.';
+    statusEl.className = 'result-status error';
+  }
+}
+
+// ---- Face attribute classifier ----
+async function runFaceClassification(){
+  const statusEl = document.getElementById('face-status');
+  const resultListEl = document.getElementById('face-result-list');
+  const state = uploadState.face;
+  if(!state || !state.img){
+    statusEl.textContent = 'Upload an image first.';
+    statusEl.className = 'result-status error';
+    return;
+  }
+  if(workerNotReady(statusEl)) return;
+
+  statusEl.textContent = 'Waking up the models and classifying…';
+  statusEl.className = 'result-status loading';
+  resultListEl.innerHTML = '';
+
+  try{
+    const imageData = state.canvas.toDataURL('image/jpeg', 0.9);
+    const resp = await fetch(`${DEMO_WORKER_URL}/face`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image: imageData })
+    });
+    const data = await resp.json();
+    if(data.error){
+      console.error('Worker/HF error:', data);
+      statusEl.textContent = 'Something went wrong calling the models — see console for details.';
+      statusEl.className = 'result-status error';
+      return;
+    }
+    console.log('HF face response:', data);
+
+    resultListEl.innerHTML = '';
+    const sections = [
+      {key:'age', title:'Age'},
+      {key:'gender', title:'Gender'},
+      {key:'race', title:'Ethnicity'},
+    ];
+    let any = false;
+    sections.forEach(({key,title})=>{
+      const arr = Array.isArray(data[key]) ? data[key] : [];
+      if(!arr.length) return;
+      any = true;
+      const sorted = [...arr].sort((a,b)=>(b.score||0)-(a.score||0));
+      const heading = document.createElement('div');
+      heading.className = 'instr-title';
+      heading.style.marginTop = '4px';
+      heading.textContent = title;
+      resultListEl.appendChild(heading);
+      renderResultRows(resultListEl, sorted.map(p=>({label:p.label, confidence:p.score})).slice(0,3));
+    });
+
+    if(!any){
+      statusEl.textContent = 'No predictions returned — check the browser console for the raw response.';
+      statusEl.className = 'result-status error';
+      return;
+    }
+    statusEl.textContent = 'Predictions:';
+    statusEl.className = 'result-status';
+  }catch(err){
+    console.error(err);
+    statusEl.textContent = 'Network error reaching the demo backend.';
+    statusEl.className = 'result-status error';
+  }
+}
+</script>
+
+</body>
+</html>
