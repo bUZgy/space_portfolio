@@ -3,7 +3,7 @@
 // Routes:
 //   POST /sketchful  -> Roboflow (doodle classifier)
 //   POST /xray       -> Roboflow (object detection)
-//   POST /face       -> Hugging Face (age + gender + race, called in parallel)
+//   POST /face       -> Gradio Space (age + gender + ethnicity, local inference)
 //
 // All API keys/tokens are read from encrypted secrets (see DEPLOY.md) and
 // never appear in the portfolio's client-side code.
@@ -44,24 +44,107 @@ async function callRoboflow(modelId, apiKey, base64Image) {
   return resp.json();
 }
 
-async function callHFImageClassification(modelId, token, base64Image) {
+// Gradio's REST API is a 3-step flow (the gradio_client Python library hides
+// this): upload the file, kick off the call to get an event_id, then read
+// the result back as a Server-Sent Events stream.
+async function callGradioFace(spaceUrl, base64Image, hfToken) {
   const bytes = base64ToBytes(base64Image);
-  const url = `https://router.huggingface.co/hf-inference/models/${modelId}`;
-  const resp = await fetch(url, {
+  const blob = new Blob([bytes], { type: "image/jpeg" });
+  const authHeaders = hfToken ? { Authorization: `Bearer ${hfToken}` } : {};
+
+  // 1. Upload the image, get back a server-side file path
+  const form = new FormData();
+  form.append("files", blob, "face.jpg");
+  const uploadResp = await fetch(`${spaceUrl}/gradio_api/upload`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: bytes,
+    headers: authHeaders,
+    body: form,
   });
-  if (!resp.ok) {
-    const detail = await resp.text();
-    throw new Error(`HF ${modelId} error (${resp.status}): ${detail}`);
+  if (!uploadResp.ok) {
+    throw new Error(`Gradio upload failed (${uploadResp.status}): ${await uploadResp.text()}`);
   }
-  return resp.json(); // array of {label, score}, sorted descending
+  const uploadedPaths = await uploadResp.json(); // e.g. ["/tmp/gradio/xxx/face.jpg"]
+  const filePath = uploadedPaths[0];
+
+  // 2. Kick off the /classify call, referencing the uploaded file
+  const callResp = await fetch(`${spaceUrl}/gradio_api/call/classify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders },
+    body: JSON.stringify({
+      data: [{ path: filePath, meta: { _type: "gradio.FileData" } }],
+    }),
+  });
+  if (!callResp.ok) {
+    throw new Error(`Gradio call failed (${callResp.status}): ${await callResp.text()}`);
+  }
+  const { event_id } = await callResp.json();
+  if (!event_id) {
+    throw new Error("Gradio call did not return an event_id");
+  }
+
+  // 3. Read the result back as a Server-Sent Events stream
+  const resultResp = await fetch(`${spaceUrl}/gradio_api/call/classify/${event_id}`, {
+    headers: authHeaders,
+  });
+  if (!resultResp.ok || !resultResp.body) {
+    throw new Error(`Gradio result fetch failed (${resultResp.status})`);
+  }
+
+  const reader = resultResp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  const events = []; // { event: string|null, data: any }
+  let currentEvent = null;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split("\n");
+    buffer = lines.pop(); // keep any incomplete trailing line for next chunk
+
+    for (const line of lines) {
+      if (line.startsWith("event:")) {
+        currentEvent = line.slice(6).trim();
+      } else if (line.startsWith("data:")) {
+        const jsonStr = line.slice(5).trim();
+        if (!jsonStr) continue;
+        try {
+          events.push({ event: currentEvent, data: JSON.parse(jsonStr) });
+        } catch {
+          // ignore non-JSON lines
+        }
+      }
+    }
+  }
+
+  // Gradio's SSE stream can include multiple event types (heartbeats,
+  // progress, generating, etc.) before the actual result. Try to find
+  // the real output array, checking a few known payload shapes, working
+  // backwards from the most recent event first.
+  for (let i = events.length - 1; i >= 0; i--) {
+    const d = events[i].data;
+    if (Array.isArray(d)) return d;
+    if (d && Array.isArray(d.data)) return d.data;
+    if (d && Array.isArray(d.output)) return d.output;
+    if (d && d.output && Array.isArray(d.output.data)) return d.output.data;
+  }
+
+  // Couldn't find a usable array in any event — surface the raw stream so
+  // the actual shape is visible in the browser console instead of a bare
+  // "not iterable" crash.
+  throw new Error(
+    `Could not find an output array in Gradio's response. Raw events: ${JSON.stringify(events).slice(0, 1500)}`
+  );
 }
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Normalize the path so a trailing/double slash in DEMO_WORKER_URL
+    // (e.g. "https://.../ " + "/face") doesn't break route matching.
+    const pathname = url.pathname.replace(/\/+/g, "/").replace(/\/$/, "") || "/";
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: CORS_HEADERS });
@@ -80,26 +163,22 @@ export default {
     if (!image) return json({ error: "Missing 'image' in request body" }, 400);
 
     try {
-      if (url.pathname === "/sketchful") {
+      if (pathname === "/sketchful") {
         const data = await callRoboflow(env.ROBOFLOW_MODEL_SKETCHFUL, env.ROBOFLOW_API_KEY, image);
         return json(data);
       }
 
-      if (url.pathname === "/xray") {
+      if (pathname === "/xray") {
         const data = await callRoboflow(env.ROBOFLOW_MODEL_XRAY, env.ROBOFLOW_API_KEY, image);
         return json(data);
       }
 
-      if (url.pathname === "/face") {
-        const [age, gender, race] = await Promise.all([
-          callHFImageClassification(env.HF_MODEL_AGE, env.HF_TOKEN_AGE, image),
-          callHFImageClassification(env.HF_MODEL_GENDER, env.HF_TOKEN_GENDER, image),
-          callHFImageClassification(env.HF_MODEL_RACE, env.HF_TOKEN_RACE, image),
-        ]);
-        return json({ age, gender, race });
+      if (pathname === "/face") {
+        const [age, gender, ethnicity] = await callGradioFace(env.GRADIO_FACE_SPACE_URL, image, env.HF_TOKEN);
+        return json({ age, gender, ethnicity });
       }
 
-      return json({ error: `Unknown route: ${url.pathname}` }, 404);
+      return json({ error: `Unknown route: ${pathname}` }, 404);
     } catch (err) {
       return json({ error: err.message }, 500);
     }

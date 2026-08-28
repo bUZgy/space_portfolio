@@ -3,15 +3,18 @@ main = "worker.js"
 compatibility_date = "2026-08-01"
 
 [vars]
-# Not secret — just identifiers, safe to keep in plain text
+# Not secret — just identifiers/URLs, safe to keep in plain text
 ROBOFLOW_MODEL_SKETCHFUL = "sketchful.ai-elpny/1"
 ROBOFLOW_MODEL_XRAY = "outsident/1"
-HF_MODEL_AGE = "crangana/trained-age"
-HF_MODEL_GENDER = "crangana/trained-gender"
-HF_MODEL_RACE = "crangana/trained-race"
+GRADIO_FACE_SPACE_URL = "https://crangana-face-attribute-classifier.hf.space"
 
-# The following are set as encrypted secrets, NOT here — see DEPLOY.md:
+# The following is set as an encrypted secret, NOT here — see DEPLOY.md:
 #   ROBOFLOW_API_KEY
-#   HF_TOKEN_AGE
-#   HF_TOKEN_GENDER
-#   HF_TOKEN_RACE
+#
+# HF_MODEL_AGE / HF_MODEL_GENDER / HF_MODEL_RACE / HF_TOKEN_AGE / HF_TOKEN_GENDER /
+# HF_TOKEN_RACE are no longer used — the face route now calls the Gradio Space
+# directly instead of Hugging Face's Inference API. If you'd set those secrets
+# earlier, they're harmless left in place, or you can remove them with:
+#   wrangler secret delete HF_TOKEN_AGE
+#   wrangler secret delete HF_TOKEN_GENDER
+#   wrangler secret delete HF_TOKEN_RACE
